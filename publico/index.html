@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+     
+  <meta name="viewport" content="width=device-width" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+   
+   <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map_canvas { height: 100% }
+    </style>
+
+<script type="text/javascript"
+  src="https://maps.googleapis.com/maps/api/js?&sensor=true">
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+
+        var mapOptions = null;
+        var map = null;
+       
+        var infowindow;
+        ( 
+            function () 
+            {
+                google.maps.Map.prototype.markers = new Array();
+                google.maps.Map.prototype.getMarkers = function ()
+                {
+                return this.markers
+                };
+            
+                google.maps.Map.prototype.clearMarkers = function () 
+                {
+                    for (var i = 0; i < this.markers.length; i++) {
+                        this.markers[i].setMap(null);
+                    }
+                this.markers = new Array();
+                };
+            
+                google.maps.Marker.prototype._setMap = google.maps.Marker.prototype.setMap;
+                google.maps.Marker.prototype.setMap = function (map) 
+                {
+                    if (map) {
+                        map.markers[map.markers.length] = this;
+                    }
+                    this._setMap(map);
+                }
+            }
+        )
+        ();
+            
+        
+        
+        function initMap() {
+            
+            lat= 18.84594132531612;
+            lng = -97.10587360591131;
+            
+          
+            mapOptions = {
+                center: new google.maps.LatLng(lat, lng),
+                zoom: 18,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+
+            map = new google.maps.Map(document.getElementById("map_canvas"),
+                mapOptions);
+            
+            google.maps.event.addListener(map, 'click', function (event) {
+                
+                lat =event.latLng.lat();
+                lng=event.latLng.lng();
+
+                document.getElementById('lat').value=lat;
+                document.getElementById('lng').value=lng;
+                
+                map.clearMarkers();
+                drawMarker();
+            });
+            
+            drawMarker();
+
+        }
+
+        
+        function drawMarker(coloresS,caracter,caja) 
+        {
+            
+            var infowindow = new google.maps.InfoWindow();
+            var marker, i; 
+            //var nombre = sessionStorage.nombreCliente;
+            var message = caja;
+          
+            var pinColor = coloresS;
+            var charMarker = 'kubeet';//caracter;
+            
+                var pinImage = new google.maps.MarkerImage
+                
+                ("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=" + charMarker + "|" + pinColor,
+                        new google.maps.Size(40, 60),
+                        new google.maps.Point(0, 0),
+                        new google.maps.Point(20, 60));
+
+                marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(lat, lng),
+                    icon: pinImage,
+                    title: '' + message,
+                    map: map
+                });
+
+               
+
+                google.maps.event.addListener(marker, 'click', (function (marker, i) {
+                    return function () {
+                        infowindow.setContent("adsoft");
+                        infowindow.open(map, marker);
+                    }
+                })(marker, i));
+                
+                var kubeet = {lat: 18.84594132531612, lng: -97.10587360591131};
+                
+                var marker = new google.maps.Marker({position: kubeet, map: map, title:'kubeet'});
+           
+        }
+       
+  
+    function obtenerDireccion()
+    {
+        alert("obteniendo direccion ...");
+
+        var geocoder = new google.maps.Geocoder;
+        
+        var mylat =18.84594132531612;//= document.getElementById('lat').value;
+        var mylng = -97.10587360591131;//= document.getElementById('lng').value;
+
+        var latlng = {lat: parseFloat(mylat), lng: parseFloat(mylng)};
+ 
+    geocoder.geocode({'location': latlng}, function(results, status) {
+
+    if (status === 'OK') {
+
+      if (results[0]) {
+          //window.alert(results);
+          //window.alert(JSON.stringify(results[0]));
+          var jf  = JSON.stringify(results[0]);
+          var l = JSON.parse(jf);
+          
+          var f = document.getElementById("direcc");
+          f.textContent = "se encuentra en: "+l.address_components[2].short_name+" "+l.address_components[3].short_name;
+        
+      } else {
+        window.alert('No results found');
+      }
+         } else {
+      window.alert('Geocoder failed due to: ' + status);
+        }
+    });
+    }           
+
+
+    function obtenerClima()
+    {
+        alert("obteniendo clima ...");
+
+        var lat = 18.84594132531612;
+        var lng = -97.10587360591131;
+        var apiKey = "2af72ef62258728d72777bef612f2a3e";
+
+      $.getJSON("http://api.openweathermap.org/data/2.5/weather?lat=" + 
+        lat + "&lon=" + lng + "&appid=" + apiKey, function(data) 
+        {
+            //alert(JSON.stringify(data));
+            var jf = JSON.stringify(data);
+            var f = JSON.parse(jf);
+            
+            var k = document.getElementById("clima");
+            k.textContent = "el clima es: "+f.weather[0].description;
+        })
+    }
+
+ function cambiar() {
+    var c = document.getElementById("coloresS").value;
+    var carac = document.getElementById("caracter").value;
+    var caja = document.getElementById("caja").value;
+       
+    drawMarker(c,carac,caja);
+} 
+     
+     
+
+    </script>
+  
+  <style type="text/css">
+        .colorYellow { color: yellow; }
+        .colorRed { color: red; }
+        .colorBlue { color: blue; }
+        .colorGreen { color: green; }
+ </style>
+ 
+ 
+
+
+ 
+  </head>
+
+  <body onload="initMap()" class="container">
+   
+       <table border="0">
+            <tr>
+                <td class='colorBlue'>Google</td>
+                <td class='colorRed'>Maps</td>
+                <td class='colorYellow'><b>Demo </b></td>
+                
+            </tr>
+        </table>
+     
+    
+      
+
+
+      <table>
+        <tr>
+            <td>
+             <!--
+                LAT:
+                <input name="lat" id="lat" type="text" size="10"/>
+                LNG:
+                <input name="lng" id="lng" type="text" size="10"/>   -->
+    
+                <input type="button" value="Obtener Direccion" onclick="obtenerDireccion()"/>
+
+                <input type="button" value="Obtener Clima" onclick="obtenerClima()"/>
+                
+                <!--
+                Cambiar color
+                <select id="coloresS" name="coloresS" onchange="colores()">
+                <option value="FF0000">rojo</option>
+                <option value="40FF00">verde</option>
+                <option value="2E2EFE">azul</option>
+                </select>
+                
+                Cambiar caracter
+                <select id="caracter" name="caracter" onchange="caracteres()">
+                <option value="$">$</option>
+                <option value="?">?</option>
+                <option value="%">%</option>
+                </select>
+                                 
+                 
+                <input type="text" name="caja" id="caja"/>
+                <input type="button" value="cambiar" onclick="cambiar()"/>  -->
+            </td>
+            <div id="direcc"></div>
+            <div id="clima"></div>
+        </tr>
+     </table>
+
+
+      <div id="map_canvas"  style="width: 100%; height: 90%; float: left; border: 1px solid black;">
+   
+      </div>
+      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDO3BNyZN8YHBRSaIYtOjT2Mo_3dTlPq4U&callback=initMap"
+    async defer></script>
+
+   
+  </body>
+</html>
